@@ -91,10 +91,17 @@ namespace Blish_HUD.Modules {
                             this.ModuleInstance.DoLoad();
 
                             this.ModuleEnabled?.Invoke(this, EventArgs.Empty);
-                        } catch (TypeLoadException ex) {
+                        } catch (Exception ex) {
                             this.ModuleInstance = null;
                             this.Enabled        = false;
-                            Logger.Error(ex, "Module {module} failed to load because it depended on a type which is not available in this version.  Ensure you are using the correct module and Blish HUD versions.", this.Manifest.GetDetailedName());
+                            switch (ex) {
+                                case TypeLoadException _:
+                                    Logger.Error(ex, "Module {module} failed to load because it depended on a type which is not available in this version. Ensure you are using the correct module and Blish HUD versions.", this.Manifest.GetDetailedName());
+                                    break;
+                                default:
+                                    Logger.Error(ex, "Module {module} failed to load due to an unhandled error. See the log file for more information.", this.Manifest.GetDetailedName());
+                                    break;
+                            }
                         }
                     }
                 } else {
